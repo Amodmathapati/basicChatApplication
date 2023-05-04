@@ -1,0 +1,89 @@
+import java.io.BufferedReader;
+import java.net.*;
+import java.io.*;
+import static java.lang.System.out;
+
+public class Client {
+
+    Socket s;
+    BufferedReader b;
+    PrintWriter p;
+
+    public Client() {
+        try {
+
+            System.out.println("sending request to the server...");
+            s = new Socket("192.168.43.5", 64990);
+            System.out.println("connection done");
+
+            b = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+            p = new PrintWriter(s.getOutputStream());
+
+            startReading();
+            startWriting();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startReading() {
+
+        Runnable r = () -> {
+            System.out.println("reader started");
+            String container;
+
+            while (true) {
+                try {
+                    container = b.readLine();
+                    if (container.equals("overandout")) {
+                        System.out.println("server terminated the session...");
+                        break;
+                    }
+                    System.out.println("server : " + container);
+                }
+
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+
+        new Thread(r).start();
+    }
+
+    public void startWriting() {
+        Runnable w = () -> {
+            System.out.println("writer started...");
+            while (true) {
+                try {
+
+                    BufferedReader w1 = new BufferedReader(new InputStreamReader(System.in));
+
+                    String container = w1.readLine();
+                    out.println(container);
+                    out.flush();
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
+
+        };
+        new Thread(w).start();
+
+    }
+
+    public static void main(String[] args) {
+        new Client();
+
+    }
+
+}
+
+
+
+
