@@ -1,0 +1,90 @@
+import java.net.*;
+import java.io.*;
+import static java.lang.System.out;
+
+public class Server {
+
+    ServerSocket server;
+    Socket socket;
+    BufferedReader b;
+    PrintWriter p;
+
+    public Server() {
+
+        try {
+
+            server = new ServerSocket(64990);
+            System.out.println("bdwdhwbdh");
+
+            System.out.println("Server is ready...send connection request...");
+            socket = server.accept();
+
+            b = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            p = new PrintWriter(socket.getOutputStream());
+            startReading();
+            startWriting();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+    }
+
+    public void startReading() {
+
+        Runnable r = () -> {
+            System.out.println("reader started");
+            String container;
+
+            while (true) {
+                try {
+                    container = b.readLine();
+                    if (container.equals("overandout")) {
+                        System.out.println("client terminated the session...");
+                        break;
+                    }
+                    System.out.println("client : " + container);
+                }
+
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+
+        new Thread(r).start();
+    }
+
+    public void startWriting() {
+        Runnable w = () -> {
+            System.out.println("writer started...");
+            while (true) {
+                try {
+
+                    BufferedReader w1 = new BufferedReader(new InputStreamReader(System.in));
+
+                    String container = w1.readLine();
+                    out.println(container);
+                    out.flush();
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
+
+        };
+        new Thread(w).start();
+
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println("server started...");
+        new Server();
+
+    }
+
+}
